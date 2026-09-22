@@ -17,6 +17,9 @@ services:
         restart: unless-stopped
         ports:
             - "3000:3000"
+        volumes:
+            - ../monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+            - grafana_data:/var/lib/grafana
         networks:
             - app-network
 
@@ -48,6 +51,30 @@ services:
             - app-network
         ports:
             - "9100:9100"
+
+
+    loki:
+        image: grafana/loki:2.9.0
+        container_name: loki
+        ports:
+         - "3010:3010"
+        command: -config.file=/etc/loki/local-config.yaml
+        networks:
+         - app-network
+
+    promtail:
+        image: grafana/promtail:2.9.0
+        container_name: promtail
+        volumes:
+          - ../monitoring/promtail/promtail-config.yaml:/etc/promtail/config.yml:ro
+          - /var/lib/docker/containers:/var/lib/docker/containers:ro
+        command: -config.file=/etc/promtail/config.yml
+        networks:
+          - app-network
+
+volumes:
+    grafana_data:
+    nginx_logs:
 
 networks:
     app-network:
