@@ -72,11 +72,37 @@ services:
         command: -config.file=/etc/promtail/config.yml
         networks:
           - app-network
+        
+    dbeaver:
+        image: dbeaver/cloudbeaver:latest
+        container_name: dbeaver
+        networks:
+         - app-network
+        ports:
+         - "4010:8978"
+        volumes: 
+         - cloudbeaver_data:/opt/cloudbeaver/workspace
+        env_file:
+         - .env
+
+    mysql:
+        image: mysql:8.0
+        container_name: mysql
+        restart: unless-stopped
+        environment:
+         MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+         MYSQL_DATABASE: prueba
+        networks:
+         - app-network
+        volumes:
+         - mysql_data:/var/lib/mysql
 
 volumes:
     grafana_data:
     nginx_logs:
+    cloudbeaver_data:
+    mysql_data:
 
-networks:
+networks:    
     app-network:
         driver: bridge
